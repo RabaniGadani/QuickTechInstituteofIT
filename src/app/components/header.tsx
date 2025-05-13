@@ -23,8 +23,7 @@ const LogoutButton: React.FC = () => {
   return (
     <button
       onClick={handleLogout}
-      className="text-white"
-    >
+      className="text-white hover:underline">
       Logout
     </button>
   );
@@ -68,7 +67,7 @@ export const Header: React.FC = () => {
           <Link href="/main/admission" className="hover:underline">Admissions</Link>
           <Link href="/main/contact" className="hover:underline">Contact</Link>
           <Link href="/main/FAQ" className="hover:underline">FAQ</Link>
-          <LogoutButton className="hover:underline"/>
+          <LogoutButton/>
         </nav>
 
         {/* Hamburger Menu for Mobile */}
