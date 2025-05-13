@@ -68,7 +68,7 @@ export const Header: React.FC = () => {
           <Link href="/main/admission" className="hover:underline">Admissions</Link>
           <Link href="/main/contact" className="hover:underline">Contact</Link>
           <Link href="/main/FAQ" className="hover:underline">FAQ</Link>
-          <LogoutButton />
+          <LogoutButton className="hover:underline"/>
         </nav>
 
         {/* Hamburger Menu for Mobile */}
