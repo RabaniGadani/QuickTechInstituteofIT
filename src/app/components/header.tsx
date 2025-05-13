@@ -23,7 +23,7 @@ const LogoutButton: React.FC = () => {
   return (
     <button
       onClick={handleLogout}
-      className="text-white hover:underline sm:hover:non">
+      className="text-white hover:underline">
       Logout
     </button>
   );
@@ -102,7 +102,7 @@ export const Header: React.FC = () => {
           <Link href="/main/FAQ" onClick={handleLinkClick} className="py-3  -700 rounded">FAQ</Link>
           
           {/* Logout Button in Sidebar */}
-          <div className="py-3">
+          <div className="py-3 hover:none">
             <LogoutButton />
           </div>
         </div>
