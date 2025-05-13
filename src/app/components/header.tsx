@@ -23,7 +23,7 @@ const LogoutButton: React.FC = () => {
   return (
     <button
       onClick={handleLogout}
-      className="text-white hover:underline">
+      className="text-white hover:none sm:hover:underline ">
       Logout
     </button>
   );
