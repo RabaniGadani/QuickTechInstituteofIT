@@ -8,6 +8,6 @@ export default async function ProtectedPage() {
   if (error || !data?.user) {
     redirect('/auth/login');
   } else {
-    redirect('/protected');
+    redirect('/main');
   }
 }
