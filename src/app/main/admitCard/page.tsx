@@ -1,4 +1,5 @@
-'use client';
+
+  'use client';
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -226,7 +227,7 @@ const GenerateCard = () => {
             <div className="flex-1 text-left">
               <p className="mb-2"><span className="font-semibold">Name:</span> {admitData.fullName}</p>
               <p className="mb-2"><span className="font-semibold">Father:</span> {admitData.fatherName}</p>
-              <p className="mb-2"><span className="font-semibold">CNIC:</span> {admitData.CNIC}</p>
+              <p className="font-semibold">CNIC:</span> {admitData.CNIC}</p>
               <p className="mb-2"><span className="font-semibold">Course:</span> {admitData.course}</p>
               <p className="mb-2"><span className="font-semibold">Campus:</span> {admitData.campus || 'N/A'}</p>
               <p className="mb-2"><span className="font-semibold">Roll Number:</span>QT-00{admitData.id || 'N/A'}</p>
@@ -285,4 +286,5 @@ const GenerateCard = () => {
   );
 };
 
-export default GenerateCard;        
+export default GenerateCard;
+          
