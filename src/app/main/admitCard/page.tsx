@@ -51,12 +51,12 @@ const GenerateCard = () => {
     setLoading(true);
 
     const supabase = createClient();
-    const { data, error } = await supabase
-      .from('Admission_Table')
-      .select('*')
-      .eq('CNIC', trimmedCNIC)
-      .ilike('fullName', %${trimmedName}%)
-      .single();
+    const { data, error } = await supabase
+      .from('Admission_Table')
+      .select('*')
+      .eq('CNIC', trimmedCNIC)
+      .ilike('fullName', `%${trimmedName}%`)
+      .single();
 
     setLoading(false);
 
