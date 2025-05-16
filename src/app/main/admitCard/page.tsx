@@ -1,7 +1,7 @@
-'use client';
+ 'use client';
 
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import Image from 'next/image';
 import { createClient } from '@/lib/client';
 
@@ -33,7 +33,6 @@ const GenerateCard = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const trimmedName = Name.trim();
     const trimmedCNIC = CNIC.trim();
 
@@ -71,93 +70,66 @@ const GenerateCard = () => {
   const handlePrint = () => {
     const printStyle = `
       <style>
-        body {
-          font-family: 'Arial', sans-serif;
-          margin: 0;
-          padding: 0;
-          background-color: #f0f0f0;
-        }
-        .print-container {
-          max-width: 100%;
-          padding: 30px;
-          background-color: #ffffff;
-          margin: 0 auto;
-          border-radius: 10px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          page-break-before: always;
-        }
-        .print-header {
-          background-color: #006e6d;
-          color: #fff;
-          text-align: center;
-          padding: 20px;
-          border-radius: 8px;
-          margin-bottom: 30px;
-        }
-        .print-header h2 {
-          margin: 0;
-          font-size: 28px;
-        }
-        .print-header img {
-          height: 60px;
-          margin-top: 10px;
-        }
-        .print-content {
-          display: flex;
-          justify-content: space-between;
-          gap: 30px;
-          margin-bottom: 30px;
-        }
-        .print-content .info-left,
-        .print-content .info-right {
-          width: 48%;
-        }
-        .student-image {
-          width: 150px;
-          height: 150px;
-          background-color: #f4f4f4;
-          border-radius: 50%;
-          margin-bottom: 20px;
-          overflow: hidden;
-        }
-        .student-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .details-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 30px;
-        }
-        .details-table th,
-        .details-table td {
-          padding: 12px;
-          text-align: left;
-          border: 1px solid #ddd;
-        }
-        .details-table th {
-          background-color: #006e6d;
-          color: #fff;
-        }
-        .footer {
-          text-align: center;
-          font-size: 14px;
-          color: #666;
-        }
-        .footer .instructions {
-          font-size: 12px;
-          margin-top: 20px;
-        }
         @media print {
           body {
-            background-color: #fff;
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+          }
+          .no-print {
+            display: none !important;
           }
           .print-container {
-            box-shadow: none;
-            border-radius: 0;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .print-header {
+            background-color: #006e6d;
+            color: white;
+            text-align: center;
+            padding: 16px;
+          }
+          .print-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+          .student-image {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 16px;
+          }
+          .student-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 12px;
+          }
+          .details-table th,
+          .details-table td {
+            border: 1px solid #000;
+            padding: 8px;
+          }
+          .details-table th {
+            background-color: #006e6d;
+            color: white;
+          }
+          .footer {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 20px;
+          }
+          @page {
+            size: A4;
+            margin: 15mm;
           }
         }
       </style>
@@ -167,39 +139,49 @@ const GenerateCard = () => {
     if (!printArea) return;
 
     const original = document.body.innerHTML;
-    document.body.innerHTML = printArea.innerHTML + printStyle;
+    document.body.innerHTML = printStyle + printArea.innerHTML;
     window.print();
     document.body.innerHTML = original;
+    window.location.reload();
   };
 
   return (
     <section className="max-w-4xl mx-auto my-8 p-6 bg-white border border-teal-800 rounded-lg shadow-lg">
-      <form onSubmit={handleSubmit} className="mb-6">
+      <Toaster toastOptions={{ className: 'no-print' }} />
+
+      {/* Form Section (Hidden in print) */}
+      <form onSubmit={handleSubmit} className="mb-6 no-print flex flex-wrap gap-4">
         <input
           type="text"
           value={Name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter Name"
-          className="border p-2 mr-2"
+          className="border p-2 flex-1 min-w-[200px]"
         />
         <input
           type="text"
           value={CNIC}
           onChange={(e) => setCNIC(e.target.value)}
           placeholder="Enter CNIC"
-          className="border p-2 mr-2"
+          className="border p-2 flex-1 min-w-[200px]"
         />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+        >
           Submit
         </button>
-        {error && <p className="text-red-600 mt-2">{error}</p>}
+        {error && <p className="text-red-600 w-full">{error}</p>}
       </form>
 
+      {/* Admit Card Printable Section */}
       {admitData && (
-        <div id="print-area">
+        <div id="print-area" className="print-container">
           {/* Header */}
-          <div className="bg-teal-800 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <h2 className="text-xl md:text-2xl font-bold">Admit Card - Entry Test 2025</h2>
+          <div className="print-header flex justify-between items-center rounded-t-md">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold">
+              Admit Card - Entry Test 2025
+            </h2>
             <div className="relative h-16 w-16">
               <Image
                 src="/Logo-.png"
@@ -212,8 +194,8 @@ const GenerateCard = () => {
           </div>
 
           {/* Content */}
-          <div className="p-6 flex flex-col sm:flex-row gap-6 border-b border-gray-200">
-            <div className="relative w-24 h-24 bg-gray-200 border border-teal-800 rounded-md flex-shrink-0">
+          <div className="print-content flex flex-col sm:flex-row gap-6 border-b border-gray-200 p-4">
+            <div className="student-image relative bg-gray-200 border border-teal-800 rounded-md">
               {admitData.imageUrl && (
                 <Image
                   src={admitData.imageUrl}
@@ -223,62 +205,69 @@ const GenerateCard = () => {
                 />
               )}
             </div>
-            <div className="flex-1 text-left">
-              <p className="mb-2"><span className="font-semibold">Name:</span> {admitData.fullName}</p>
-              <p className="mb-2"><span className="font-semibold">Father:</span> {admitData.fatherName}</p>
-              <p className="mb-2"><span className="font-semibold">CNIC:</span> {admitData.CNIC}</p>
-              <p className="mb-2"><span className="font-semibold">Course:</span> {admitData.course}</p>
-              <p className="mb-2"><span className="font-semibold">Campus:</span> {admitData.campus || 'N/A'}</p>
-              <p className="mb-2"><span className="font-semibold">Roll Number:</span>QT-00{admitData.id || 'N/A'}</p>
+            <div className="flex-1">
+              <p className="mb-2"><strong>Name:</strong> {admitData.fullName}</p>
+              <p className="mb-2"><strong>Father:</strong> {admitData.fatherName}</p>
+              <p className="mb-2"><strong>CNIC:</strong> {admitData.CNIC}</p>
+              <p className="mb-2"><strong>Course:</strong> {admitData.course}</p>
+              <p className="mb-2"><strong>Campus:</strong> {admitData.campus || 'N/A'}</p>
+              <p className="mb-2"><strong>Roll Number:</strong> QT-00{admitData.id || 'N/A'}</p>
             </div>
           </div>
 
-          {/* Test Details */}
-          <table className="w-full border-collapse my-6 text-sm">
+          {/* Test Details Table */}
+          <table className="details-table my-6 text-sm">
             <thead>
               <tr>
-                <th colSpan={2} className="bg-teal-800 text-white p-3 text-left">Test Details</th>
+                <th colSpan={2} className="text-left p-3">Test Details</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-teal-800 p-3 font-semibold">Date</td>
-                <td className="border border-teal-800 p-3">{admitData.testDate || '25 May, 2025 '}</td>
+                <td className="p-3 font-semibold border">Date</td>
+                <td className="p-3 border">{admitData.testDate || '25 May, 2025'}</td>
               </tr>
               <tr>
-                <td className="border border-teal-800 p-3 font-semibold">Time</td>
-                <td className="border border-teal-800 p-3">{admitData.testTime || '10:00 Am'}</td>
+                <td className="p-3 font-semibold border">Time</td>
+                <td className="p-3 border">{admitData.testTime || '10:00 AM'}</td>
               </tr>
               <tr>
-                <td className="border border-teal-800 p-3 font-semibold">Institute</td>
-                <td className="border border-teal-800 p-3">{'Quick Tech Institiute of Information Technology'}</td>
+                <td className="p-3 font-semibold border">Institute</td>
+                <td className="p-3 border">Quick Tech Institute of Information Technology</td>
               </tr>
               <tr>
-                <td className="border border-teal-800 p-3 font-semibold">Venue</td>
-                <td className="border border-teal-800 p-3">{'Quick Tech Institiute of Information Technology, Gill Colony Near Hazaray Shah Muhalla, Mirpur Mathelo'}</td>
+                <td className="p-3 font-semibold border">Venue</td>
+                <td className="p-3 border">
+                  Quick Tech Institute of Information Technology, Gill Colony, Near Hazaray Shah Muhalla, Mirpur Mathelo
+                </td>
               </tr>
             </tbody>
           </table>
 
           {/* Instructions */}
-          <div className="text-left text-sm">
+          <div className="text-sm">
             <p className="font-bold mb-2">Instructions:</p>
-            <p className="mb-1">- Arrive at least 30 minutes before the test.</p>
-            <p className="mb-1">- Bring this admit card and a valid CNIC /B-Form.</p>
-            <p className="mb-1">- Electronic devices are not allowed in the exam hall.</p>
-            <p className="text-red-600 font-bold">
-              Note: This admit card is mandatory for entry to the test center.
-            </p>
+            <ul className="list-disc list-inside space-y-1">
+              <li>Arrive at least 30 minutes before the test.</li>
+              <li>Bring this admit card and a valid CNIC / B-Form.</li>
+              <li>Electronic devices are not allowed in the exam hall.</li>
+              <li className="text-red-600 font-bold">
+                Note: This admit card is mandatory for entry to the test center.
+              </li>
+            </ul>
           </div>
+        </div>
+      )}
 
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={handlePrint}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Print Slip
-            </button>
-          </div>
+      {/* Print Button (Hidden in print) */}
+      {admitData && (
+        <div className="mt-6 flex justify-end no-print">
+          <button
+            onClick={handlePrint}
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Print Slip
+          </button>
         </div>
       )}
     </section>
@@ -286,3 +275,4 @@ const GenerateCard = () => {
 };
 
 export default GenerateCard;
+   
