@@ -1,148 +1,151 @@
- 'use client';
+'use client';
 
 import { useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { createClient } from '@/lib/client';
 
 interface AdmitCardData {
-  fullName: string;
-  fatherName: string;
-  City: string;
-  Qualification: string;
-  course: string;
-  Birth: number;
-  CNIC: number;
-  Picture: string;
-  id: number;
-  imageUrl: string;
-  testDate?: string;
-  testTime?: string;
-  institute?: string;
-  testVenue?: string;
-  campus?: string;
-  rollNumber?: string;
+  fullName: string;
+  fatherName: string;
+  City: string;
+  Qualification: string;
+  course: string;
+  Birth: number;
+  CNIC: number;
+  Picture: string;
+  id: number;
+  imageUrl: string;
+  testDate?: string;
+  testTime?: string;
+  institute?: string;
+  testVenue?: string;
+  campus?: string;
+  rollNumber?: string;
 }
 
 const GenerateCard = () => {
-  const [CNIC, setCNIC] = useState('');
-  const [Name, setName] = useState('');
-  const [admitData, setAdmitData] = useState<AdmitCardData | null>(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [CNIC, setCNIC] = useState('');
+  const [Name, setName] = useState('');
+  const [admitData, setAdmitData] = useState<AdmitCardData | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const trimmedName = Name.trim();
-    const trimmedCNIC = CNIC.trim();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmedName = Name.trim();
+    const trimmedCNIC = CNIC.trim();
 
-    if (!trimmedName || !trimmedCNIC) {
-      setError('Both fields are required!');
-      return;
-    }
+    if (!trimmedName || !trimmedCNIC) {
+      setError('Both fields are required!');
+      return;
+    }
 
-    if (trimmedCNIC.length !== 13) {
-      setError('CNIC must be exactly 13 digits.');
-      return;
-    }
+    if (trimmedCNIC.length !== 13) {
+      setError('CNIC must be exactly 13 digits.');
+      return;
+    }
 
-    setError('');
-    setLoading(true);
+    setError('');
+    setLoading(true);
+    const supabase = createClient();
 
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('Admission_Table')
-      .select('*')
-      .eq('CNIC', trimmedCNIC)
-      .ilike('fullName', `%${trimmedName}%`)
-      .single();
+    const { data, error } = await supabase
+      .from('Admission_Table')
+      .select('*')
+      .eq('CNIC', trimmedCNIC)
+      .ilike('fullName', `%${trimmedName}%`)
+      .single();
 
-    setLoading(false);
+    setLoading(false);
 
-    if (error || !data) {
-      toast.error('No record found.');
-    } else {
-      toast.success('Submitted Successfully');
-      setAdmitData(data);
-    }
-  };
+    if (error || !data) {
+      toast.error('No record found.');
+    } else {
+      toast.success('Submitted Successfully');
+      setAdmitData(data);
+    }
+  };
 
-  const handlePrint = () => {
-    const printStyle = `
-      <style>
-        @media print {
-          body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-          }
-          .no-print {
-            display: none !important;
-          }
-          .print-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .print-header {
-            background-color: #006e6d;
-            color: white;
-            text-align: center;
-            padding: 16px;
-          }
-          .print-content {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-          }
-          .student-image {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 16px;
-          }
-          .student-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          .details-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-            font-size: 12px;
-          }
-          .details-table th,
-          .details-table td {
-            border: 1px solid #000;
-            padding: 8px;
-          }
-          .details-table th {
-            background-color: #006e6d;
-            color: white;
-          }
-          .footer {
-            text-align: center;
-            font-size: 11px;
-            margin-top: 20px;
-          }
-          @page {
-            size: A4;
-            margin: 15mm;
-          }
-        }
-      </style>
-    `;
+  const handlePrint = () => {
+    const printContents = document.getElementById('print-area')?.innerHTML;
+    if (!printContents) return;
 
-    const printArea = document.getElementById('print-area');
-    if (!printArea) return;
+    const printWindow = window.open('', '', 'height=800,width=800');
+    if (!printWindow) return;
 
-    const original = document.body.innerHTML;
-    document.body.innerHTML = printStyle + printArea.innerHTML;
-    window.print();
-    document.body.innerHTML = original;
-    window.location.reload();
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Admit Card</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 20px;
+              background-color: #ffffff;
+            }
+            .print-container {
+              max-width: 800px;
+              margin: auto;
+              padding: 30px;
+              border-radius: 10px;
+              background-color: #fff;
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+            .print-header {
+              background-color: #006e6d;
+              color: white;
+              text-align: center;
+              padding: 20px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+            }
+            .print-content {
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              gap: 20px;
+            }
+            .info-left, .info-right {
+              width: 48%;
+            }
+            .student-image img {
+              width: 120px;
+              height: 120px;
+              border-radius: 50%;
+              margin-bottom: 16px;
+            }
+            .details-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            .details-table th, .details-table td {
+              padding: 10px;
+              border: 1px solid #ccc;
+              text-align: left;
+            }
+            .footer {
+              text-align: center;
+              font-size: 12px;
+              margin-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-container">
+            ${printContents}
+          </div>
+          <script>
+            window.onload = function () {
+              window.print();
+              window.onafterprint = () => window.close();
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   return (
