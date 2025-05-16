@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
@@ -284,4 +285,4 @@ const GenerateCard = () => {
   );
 };
 
-export default GenerateCard;
+export default GenerateCard;        
