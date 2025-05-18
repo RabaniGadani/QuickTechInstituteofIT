@@ -51,12 +51,12 @@ const GenerateCard = () => {
     setLoading(true);
 
     const supabase = createClient();
-    const { data, error } = await supabase
-      .from('Admission_Table')
-      .select('*')
-      .eq('CNIC', trimmedCNIC)
-      .ilike('fullName', `%${trimmedName}%`)
-      .single();
+    const { data, error } = await supabase
+      .from('Admission_Table')
+      .select('*')
+      .eq('CNIC', trimmedCNIC)
+      .ilike('fullName', `%${trimmedName}%`)
+      .single();
 
     setLoading(false);
 
@@ -69,7 +69,7 @@ const GenerateCard = () => {
   };
 
   const handlePrint = () => {
-    const printStyle = 
+    const printStyle = `
       <style>
         body {
           font-family: 'Arial', sans-serif;
@@ -161,7 +161,7 @@ const GenerateCard = () => {
           }
         }
       </style>
-    ;
+    `;
 
     const printArea = document.getElementById('print-area');
     if (!printArea) return;
@@ -226,7 +226,7 @@ const GenerateCard = () => {
             <div className="flex-1 text-left">
               <p className="mb-2"><span className="font-semibold">Name:</span> {admitData.fullName}</p>
               <p className="mb-2"><span className="font-semibold">Father:</span> {admitData.fatherName}</p>
-              <p className="font-semibold">CNIC:</span> {admitData.CNIC}</p>
+              <p className="mb-2"><span className="font-semibold">CNIC:</span> {admitData.CNIC}</p>
               <p className="mb-2"><span className="font-semibold">Course:</span> {admitData.course}</p>
               <p className="mb-2"><span className="font-semibold">Campus:</span> {admitData.campus || 'N/A'}</p>
               <p className="mb-2"><span className="font-semibold">Roll Number:</span>QT-00{admitData.id || 'N/A'}</p>
