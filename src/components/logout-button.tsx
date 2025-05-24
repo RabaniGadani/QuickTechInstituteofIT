@@ -1,17 +1,25 @@
-'use client'
+'use client'; // Only for App Router
 
-import { createClient } from '@/lib/client'
-import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
 
-export function LogoutButton() {
-  const router = useRouter()
+export default function LogoutPage() {
+  const router = useRouter();
 
-  const logout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/auth/login')
-  }
+  useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
-  return <Button onClick={logout}>Logout</Button>
+    const signOut = async () => {
+      await supabase.auth.signOut();
+      router.replace('/auth/login'); // Redirect to login page
+    };
+
+    signOut();
+  }, [router]);
+
+  return <p>Signing you out...</p>;
 }
