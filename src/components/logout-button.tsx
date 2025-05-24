@@ -1,24 +1,17 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
+'use client'
 
-export async function POST(request: Request) {
-  const response = NextResponse.redirect(new URL('/auth/login', request.url))
+import { createClient } from '@/lib/client'
+import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => [],
-        setAll: (cookies) => {
-          cookies.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options)
-          })
-        },
-      },
-    }
-  )
+export function LogoutButton() {
+  const router = useRouter()
 
-  await supabase.auth.signOut()
-  return response
+  const logout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/auth/login')
+  }
+
+  return <Button onClick={logout}>Logout</Button>
 }
