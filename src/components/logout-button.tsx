@@ -1,14 +1,24 @@
-'use client';
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from 'next/server'
 
-import { useRouter } from 'next/navigation';
+export async function POST(request: Request) {
+  const response = NextResponse.redirect(new URL('/auth/login', request.url))
 
-export default function LogoutButton() {
-  const router = useRouter();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => [],
+        setAll: (cookies) => {
+          cookies.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
 
-  const handleLogout = async () => {
-    await fetch('/auth/logout'); // Triggers API route to sign out
-    router.replace('/auth/login'); // Ensure full navigation
-  };
-
-  return <button onClick={handleLogout}>Logout</button>;
+  await supabase.auth.signOut()
+  return response
 }
