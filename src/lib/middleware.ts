@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+  import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const createClient = (request: NextRequest) => {
@@ -30,41 +30,26 @@ export const createClient = (request: NextRequest) => {
 export async function middleware(request: NextRequest) {
   try {
     const { supabase, response } = createClient(request);
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     const path = request.nextUrl.pathname;
 
-    // Public routes accessible without login
-    const publicRoutes = [
-      '/auth/login',
-      '/auth/register',
-      '/auth/reset-password',
-    ];
+    const publicRoutes = ['/', '/login', '/register', '/auth', '/reset-password'];
+    const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(`${route}/`));
 
-    const isPublicRoute = publicRoutes.some(
-      (route) => path === route || path.startsWith(`${route}/`)
-    );
-
-    // If user is NOT authenticated and tries to access protected route, redirect to login
     if (authError || !user) {
       if (!isPublicRoute) {
         const redirectUrl = new URL('/auth/login', request.url);
-        redirectUrl.searchParams.set('redirectTo', path); // for post-login redirect
+        redirectUrl.searchParams.set('redirectTo', path);
         return NextResponse.redirect(redirectUrl);
       }
-      return response; // allow access to public routes
+      return response;
     }
 
-    // If user IS authenticated and tries to access any auth page, redirect to /main or protected page
-    if (user && isPublicRoute) {
-      return NextResponse.redirect(new URL('/main', request.url));
+    if (user && path.startsWith('/auth')) {
+      return NextResponse.redirect(new URL('/protected', request.url));
     }
 
-    // Authenticated user accessing protected routes - continue
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
@@ -73,16 +58,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/admission',
-    '/admission/:path*',
-    '/contact',
-    '/contact/:path*',
-    '/faq',
-    '/faq/:path*',
-    '/logout',
-    '/logout/:path*',
-    '/main',
-    '/main/:path*',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
+  
