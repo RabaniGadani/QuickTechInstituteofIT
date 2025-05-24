@@ -1,25 +1,14 @@
-'use client'; // Only for App Router
+'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
 
-export default function LogoutPage() {
+export default function LogoutButton() {
   const router = useRouter();
 
-  useEffect(() => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+  const handleLogout = async () => {
+    await fetch('/auth/logout'); // Triggers API route to sign out
+    router.replace('/auth/login'); // Ensure full navigation
+  };
 
-    const signOut = async () => {
-      await supabase.auth.signOut();
-      router.replace('/auth/login'); // Redirect to login page
-    };
-
-    signOut();
-  }, [router]);
-
-  return <p>Signing you out...</p>;
+  return <button onClick={handleLogout}>Logout</button>;
 }
