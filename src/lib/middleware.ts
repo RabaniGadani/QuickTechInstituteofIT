@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
 
     const path = request.nextUrl.pathname;
 
-    const publicRoutes = ['auth/login', '/register', '/reset-password'];
+    const publicRoutes = ['auth/login', '/auth/register', '/auth/reset-password'];
     const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(`${route}/`));
 
     if (authError || !user) {
@@ -60,11 +60,12 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/home',
-    '/courses/:path*',
-    '/admission',
-    '/contact',
-    '/faq',
-    '/logout',
+    '/main/:path ',
+    'main//courses/:path*',
+    'main//admission:path ',
+    '/main/contact:path ',
+    '/main/FAQ:path ',
+    '/main/generateCard:path ',
+    
   ],
 };
