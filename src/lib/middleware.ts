@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
 
     const path = request.nextUrl.pathname;
 
-    // Public routes anyone can access without login
+    // Public routes accessible without login
     const publicRoutes = [
       '/auth/login',
       '/auth/register',
@@ -49,23 +49,22 @@ export async function middleware(request: NextRequest) {
       (route) => path === route || path.startsWith(`${route}/`)
     );
 
-    // If user not authenticated and tries to access protected route, redirect to login
+    // If user is NOT authenticated and tries to access protected route, redirect to login
     if (authError || !user) {
       if (!isPublicRoute) {
         const redirectUrl = new URL('/auth/login', request.url);
-        redirectUrl.searchParams.set('redirectTo', path); // so you can redirect back after login
+        redirectUrl.searchParams.set('redirectTo', path); // for post-login redirect
         return NextResponse.redirect(redirectUrl);
       }
-      // Allow access to public routes without login
-      return response;
+      return response; // allow access to public routes
     }
 
-    // If user is logged in and tries to access any auth page, redirect to /protected
+    // If user IS authenticated and tries to access any auth page, redirect to /main or protected page
     if (user && isPublicRoute) {
-      return NextResponse.redirect(new URL('/protected', request.url));
+      return NextResponse.redirect(new URL('/main', request.url));
     }
 
-    // For logged-in user accessing protected routes, just continue
+    // Authenticated user accessing protected routes - continue
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
@@ -75,6 +74,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/admission',
+    '/admission/:path*',
+    '/contact',
+    '/contact/:path*',
+    '/faq',
+    '/faq/:path*',
+    '/logout',
+    '/logout/:path*',
     '/main',
     '/main/:path*',
   ],
