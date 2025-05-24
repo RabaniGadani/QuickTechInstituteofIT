@@ -69,10 +69,10 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/main:path*',
-    '/main/courses/:path*',
+    '/main/courses:path*',
     '/main/admission:path*',
     '/main/contact:path*',
-    '/main/faq:path*',
+    '/main/FAQ:path*',
     '/main/generateCard:path*'
   ],
 };
