@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const createClient = (request: NextRequest) => {
@@ -30,6 +30,7 @@ export const createClient = (request: NextRequest) => {
 export async function middleware(request: NextRequest) {
   try {
     const { supabase, response } = createClient(request);
+
     const {
       data: { user },
       error: authError,
@@ -37,28 +38,34 @@ export async function middleware(request: NextRequest) {
 
     const path = request.nextUrl.pathname;
 
+    // Public routes anyone can access without login
     const publicRoutes = [
       '/auth/login',
       '/auth/register',
-      '/auth/reset-password'
+      '/auth/reset-password',
     ];
+
     const isPublicRoute = publicRoutes.some(
       (route) => path === route || path.startsWith(`${route}/`)
     );
 
+    // If user not authenticated and tries to access protected route, redirect to login
     if (authError || !user) {
       if (!isPublicRoute) {
         const redirectUrl = new URL('/auth/login', request.url);
-        redirectUrl.searchParams.set('redirectTo', path);
+        redirectUrl.searchParams.set('redirectTo', path); // so you can redirect back after login
         return NextResponse.redirect(redirectUrl);
       }
+      // Allow access to public routes without login
       return response;
     }
 
-    if (user && path.startsWith('/auth/login')) {
+    // If user is logged in and tries to access any auth page, redirect to /protected
+    if (user && isPublicRoute) {
       return NextResponse.redirect(new URL('/protected', request.url));
     }
 
+    // For logged-in user accessing protected routes, just continue
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
@@ -68,11 +75,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/main:path*',
-    '/main/courses:path*',
-    '/main/admission:path*',
-    '/main/contact:path*',
-    '/main/FAQ:path*',
-    '/main/generateCard:path*'
+    '/main',
+    '/main/:path*',
   ],
 };
