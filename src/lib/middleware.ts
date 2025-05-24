@@ -1,4 +1,5 @@
-  import { createServerClient, type CookieOptions } from "@supabase/ssr";
+
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const createClient = (request: NextRequest) => {
@@ -34,16 +35,28 @@ export async function middleware(request: NextRequest) {
 
     const path = request.nextUrl.pathname;
 
-    const publicRoutes = ['/', '/login', '/register', '/auth', '/reset-password'];
+    // Define protected routes
+    const protectedRoutes = [
+      '/main/courses',
+      '/main/admission',
+      '/main/contact',
+      '/main/faq',
+      'auth/logout',
+      '/main,
+      
+      
+    ];
+
+    const isProtectedRoute = protectedRoutes.some(route => path === route || path.startsWith(`${route}/`));
+
+    // Public routes anyone can access
+    const publicRoutes = [ '/','auth/login', 'auth/register', '/auth/reset-password'];
     const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(`${route}/`));
 
-    if (authError || !user) {
-      if (!isPublicRoute) {
-        const redirectUrl = new URL('/auth/login', request.url);
-        redirectUrl.searchParams.set('redirectTo', path);
-        return NextResponse.redirect(redirectUrl);
-      }
-      return response;
+    if ((authError || !user) && isProtectedRoute) {
+      const redirectUrl = new URL('/auth/login', request.url);
+      redirectUrl.searchParams.set('redirectTo', path);
+      return NextResponse.redirect(redirectUrl);
     }
 
     if (user && path.startsWith('/auth')) {
@@ -58,6 +71,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/(api|trpc)(.*)',
+  ],
 };
-  
